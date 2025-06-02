@@ -12,18 +12,18 @@ Pi](http://www.raspberrypi.org/).
 ## Installation
 
 I'm going to assume you're running Linux for this installation guide, preferably
-Debian Jessie (or newer when their time comes). Debian before Jessie contains
-too old versions of certain packages.
+Debian Bookworm (or newer when their time comes). Make sure to have backports
+in your apt sources for the proper go version.
 
 First, make sure you have the needed dependencies installed:
 
- *  golang 1.3 (1.1+ might also work, but 1.0 certainly doesn't)
+ *  golang 1.23 (1.1+ might also work, but 1.0 certainly doesn't)
  *  libmpv-dev
- *  youtube-dl (see also 'notes on youtube-dl' below)
+ *  yt-dlp (see also 'notes on yt-dlp' below)
 
-These can be installed in one go under Debian Jessie:
+These can be installed in one go under Debian Bookworm:
 
-    $ sudo apt-get install golang libmpv-dev youtube-dl
+    $ sudo apt-get install golang-1.23 libmpv-dev yt-dlp
 
 If you haven't already set up a Go workspace, create one now. Some people like
 to set it to their home directory, but you can also set it to a separate
@@ -50,33 +50,15 @@ work.
 `youtube-dl` is often too old to be used for downloading YouTube streams. You
 can try to run `youtube-dl -U`, but it may say that it won't update because it
 has been installed via a package manager. To fix this, uninstall youtube-dl, and
-install it via pip. The steps required depend on the version of Python in your
-`$PATH` variable. Check it with:
+install it via pip.
 
-    $ python --version
-
-Install using pip for **Python 2** (usually version 2.7.x), on Debian stretch
-and below:
-
-    $ sudo apt-get remove youtube-dl
-    $ sudo apt-get install python-pip
-    $ sudo pip2 install youtube-dl
-
-Install using pip3 for **Python 3** (version 3.x). Only required when you have
-configured the `python` binary to point to Python 3, or maybe on newer versions
-of Debian.
-
-    $ sudo apt-get remove youtube-dl
+    $ sudo apt-get remove yt-dlp
     $ sudo apt-get install python3-pip
-    $ sudo pip3 install youtube-dl
+    $ sudo pip3 install yt-dlp
 
-Afterwards, you can update youtube-dl using:
+Afterwards, you can update yt-dlp using:
 
-    $ sudo pip install --upgrade youtube-dl
-
-Or for Python 3:
-
-    $ sudo pip3 install --upgrade youtube-dl
+    $ sudo pip3 install --upgrade yt-dlp
 
 It is advisable to run this regularly as it has to keep up with YouTube updates.
 Certainly first try updating youtube-dl when plaincast stops working.

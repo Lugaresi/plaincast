@@ -14,8 +14,8 @@ import (
 const pythonGrabber = `
 try:
     import sys
-    from youtube_dl import YoutubeDL
-    from youtube_dl.utils import DownloadError
+    from yt_dlp import YoutubeDL
+    from yt_dlp.utils import DownloadError
 
     if len(sys.argv) != 3:
         sys.stderr.write('arguments: <format string> <cache dir>')
@@ -32,7 +32,7 @@ try:
         stream = ''
         try:
             url = sys.stdin.readline().strip()
-            stream = yt.extract_info(url, ie_key='Youtube')['url']
+            stream = yt.extract_info(url, download=False)['url']
         except (KeyboardInterrupt, EOFError, IOError):
             break
         except DownloadError as why:
@@ -84,7 +84,7 @@ func NewVideoGrabber() *VideoGrabber {
 	go func() {
 		defer vg.cmdMutex.Unlock()
 
-		vg.cmd = exec.Command("python", "-c", pythonGrabber, grabberFormats, cacheDir)
+		vg.cmd = exec.Command("python3", "-c", pythonGrabber, grabberFormats, cacheDir)
 		stdout, err := vg.cmd.StdoutPipe()
 		if err != nil {
 			logger.Fatal(err)
