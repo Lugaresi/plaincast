@@ -4,7 +4,7 @@ import (
 	"flag"
 
 	"github.com/aykevl/plaincast/log"
-	"github.com/nu7hatch/gouuid"
+	"github.com/google/uuid"
 )
 
 const (

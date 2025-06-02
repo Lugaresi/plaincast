@@ -18,7 +18,7 @@ import (
 	"github.com/aykevl/plaincast/apps/youtube/mp"
 	"github.com/aykevl/plaincast/config"
 	"github.com/aykevl/plaincast/log"
-	"github.com/nu7hatch/gouuid"
+	"github.com/google/uuid"
 )
 
 var logger = log.New("youtube", "log YouTube app")
@@ -150,7 +150,7 @@ func (yt *YouTube) init(arguments url.Values, stateChange chan mp.StateChange) {
 	yt.rid = NewRandomID()
 
 	yt.uuid, err = config.Get().GetString("apps.youtube.uuid", func() (string, error) {
-		uuid, err := uuid.NewV4()
+		uuid, err := uuid.NewV7()
 		if err != nil {
 			return "", err
 		}

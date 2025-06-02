@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/nu7hatch/gouuid"
+	"github.com/google/uuid"
 )
 
 // getLocalAddr gets the local address from the specified address.
@@ -49,6 +49,7 @@ func getUUID() (*uuid.UUID, error) {
 		return nil, err
 	}
 
+	var nUUID uuid.UUID
 	// get the first interface with a MAC address
 	for _, itf := range itfs {
 		if len(itf.HardwareAddr) == 0 {
@@ -57,7 +58,8 @@ func getUUID() (*uuid.UUID, error) {
 
 		// this may not be how UUIDv5 is meant to be used...
 		id := []byte(itf.HardwareAddr.String() + "-" + NAME)
-		return uuid.NewV5(uuid.NamespaceOID, id)
+		nUUID = uuid.NewSHA1(uuid.NameSpaceOID, id)
+		return &nUUID, nil
 	}
 
 	return nil, errors.New("could not find interface with MAC address")
