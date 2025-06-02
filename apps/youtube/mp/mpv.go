@@ -61,8 +61,7 @@ func (mpv *MPV) initialize() (chan State, int) {
 	}
 
 	mpv.setOptionFlag("resume-playback", false)
-	//mpv.setOptionString("softvol", "yes")
-	//mpv.setOptionString("ao", "pulse")
+	mpv.setOptionString("ao", "pulse")
 	mpv.setOptionInt("volume", initialVolume)
 
 	// Disable video in three ways.
@@ -73,8 +72,9 @@ func (mpv *MPV) initialize() (chan State, int) {
 	// Cache settings assume 128kbps audio stream (16kByte/s).
 	// The default is a cache size of 25MB, these are somewhat more sensible
 	// cache sizes IMO.
-	mpv.setOptionInt("cache-default", 160) // 10 seconds
-	mpv.setOptionInt("cache-seek-min", 16) // 1 second
+	mpv.setOptionInt("cache-secs", 10) // 10 seconds
+	// mpv.setOptionInt("cache-seek-min", 16) // 1 second - discontinued
+	mpv.setOptionFlag("demuxer-cache-wait", true) // Wait for fill before playing
 
 	// Some extra debugging information, but don't read from stdin.
 	// libmpv has a problem with signal handling, though: when `terminal` is
@@ -296,6 +296,9 @@ func (mpv *MPV) stop() {
 
 // playerEventHandler waits for libmpv player events and sends them on a channel
 func (mpv *MPV) eventHandler(eventChan chan State) {
+	// Some events need to be registered (observed) prior to evemt loop processing.
+	// We start with pause as per initial code. Assign an initial code "1".
+	C.mpv_observe_property(mpv.handle, 1, (*C.char)(C.CString("pause")), C.MPV_FORMAT_FLAG)
 	for {
 		// wait until there is an event (negative timeout means infinite timeout)
 		// The timeout is 1 second to work around libmpv bug #1372 (mpv_wakeup
@@ -328,10 +331,17 @@ func (mpv *MPV) eventHandler(eventChan chan State) {
 			eventChan <- STATE_PLAYING
 		case C.MPV_EVENT_END_FILE:
 			eventChan <- STATE_STOPPED
-		case C.MPV_EVENT_PAUSE:
-			eventChan <- STATE_PAUSED
-		case C.MPV_EVENT_UNPAUSE:
-			eventChan <- STATE_PLAYING
+		case C.MPV_EVENT_PROPERTY_CHANGE:
+			switch event.reply_userdata {
+				case 1:
+					var Paused int64 = 0
+					C.mpv_get_property(mpv.handle, (*C.char)(C.CString("pause")), C.MPV_FORMAT_FLAG,unsafe.Pointer( &Paused))
+					if Paused != 0 {
+						eventChan <- STATE_PAUSED
+					} else {
+						eventChan <- STATE_PLAYING
+					}
+				}
 		}
 	}
 }
