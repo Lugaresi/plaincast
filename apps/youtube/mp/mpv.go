@@ -39,6 +39,7 @@ type MPV struct {
 
 var mpvLogger = log.New("mpv", "log MPV wrapper output")
 var logLibMPV = flag.Bool("log-libmpv", false, "log output of libmpv")
+var pulseout = flag.Bool("pulse", false, "enable PulseAudio output")
 
 // New creates a new MPV instance and initializes the libmpv player
 func (mpv *MPV) initialize() (chan State, int) {
@@ -61,7 +62,9 @@ func (mpv *MPV) initialize() (chan State, int) {
 	}
 
 	mpv.setOptionFlag("resume-playback", false)
-	mpv.setOptionString("ao", "pulse")
+	if *pulseout {
+		mpv.setOptionString("ao", "pulse")
+	}
 	mpv.setOptionInt("volume", initialVolume)
 
 	// Disable video in three ways.
